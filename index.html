@@ -14,111 +14,46 @@
   <!-- Map -->
   <div id="map"></div>
 
-  <!-- Form UI -->
-  <div class="form-container">
-    <h2>Add Abandoned Building</h2>
-    <input type="text" id="name" placeholder="e.g., Old Hospital" />
-    <input type="text" id="lat" placeholder="Latitude" />
-    <input type="text" id="lng" placeholder="Longitude" />
-    <button onclick="addBuilding()">Add Marker</button>
-  </div>
-
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 
+  <!-- Load markers from locos.json -->
   <script>
-    // Base Layers
     const baseLayers = {
-      "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap',
-        maxZoom: 19
-      }),
-      "Esri Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: '© Esri, Maxar, Earthstar Geographics',
-        maxZoom: 19
-      }),
-      "Carto Light": L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
-        attribution: '© CartoDB',
-        maxZoom: 19
-      }),
       "Carto Dark": L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
         attribution: '© CartoDB',
         maxZoom: 19
       }),
-      "Stamen Terrain": L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg', {
-        attribution: 'Map tiles by Stamen Design',
-        maxZoom: 18
+      "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
       })
     };
 
-    // Initialize Map with bounds and zoom limits
     const map = L.map('map', {
       center: [20, 0],
       zoom: 2,
-      minZoom: 2,               // Can't zoom out beyond world view
-      maxBounds: [[-90, -180], [90, 180]],  // Can't pan outside world bounds
+      minZoom: 2,
+      maxBounds: [[-90, -180], [90, 180]],
       maxBoundsViscosity: 1.0,
-      layers: [baseLayers["Carto Dark"]]    // Default base layer
+      layers: [baseLayers["Carto Dark"]]
     });
 
-    // Add layer control to switch base layers
     L.control.layers(baseLayers).addTo(map);
 
-    // Load saved markers from localStorage on startup
-    function loadMarkers() {
-      const saved = localStorage.getItem('abandonedMarkers');
-      if (!saved) return;
-      
-      const markers = JSON.parse(saved);
-      markers.forEach(({ name, lat, lng }) => {
-        const marker = L.marker([lat, lng]).addTo(map);
-        marker.bindPopup(`<strong>${name}</strong>`);
+    // Load markers from locos.json
+    fetch('locos.json')
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(({ name, lat, lng }) => {
+          const marker = L.marker([lat, lng]).addTo(map);
+          marker.bindPopup(`<strong>${name}</strong>`);
+        });
+      })
+      .catch(err => {
+        console.error("Failed to load marker data:", err);
+        alert("Could not load location data.");
       });
-    }
-
-    // Save all markers to localStorage
-    function saveMarkers() {
-      const markersData = [];
-      map.eachLayer(layer => {
-        if (layer instanceof L.Marker) {
-          const { lat, lng } = layer.getLatLng();
-          const popup = layer.getPopup();
-          const name = popup ? popup.getContent().replace(/<[^>]*>/g, '') : '';
-          if(name) {
-            markersData.push({ name, lat, lng });
-          }
-        }
-      });
-      localStorage.setItem('abandonedMarkers', JSON.stringify(markersData));
-    }
-
-    // Call loadMarkers when page loads
-    loadMarkers();
-
-    // Add building marker function
-    function addBuilding() {
-      const name = document.getElementById('name').value.trim();
-      const lat = parseFloat(document.getElementById('lat').value);
-      const lng = parseFloat(document.getElementById('lng').value);
-
-      if (!name || isNaN(lat) || isNaN(lng)) {
-        alert("Please enter a name and valid coordinates.");
-        return;
-      }
-
-      const marker = L.marker([lat, lng]).addTo(map);
-      marker.bindPopup(`<strong>${name}</strong>`).openPopup();
-
-      map.setView([lat, lng], 10);
-
-      // Save markers after adding
-      saveMarkers();
-
-      // Clear inputs
-      document.getElementById('name').value = '';
-      document.getElementById('lat').value = '';
-      document.getElementById('lng').value = '';
-    }
   </script>
 </body>
 </html>
