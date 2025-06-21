@@ -64,6 +64,37 @@
     // Add layer control to switch base layers
     L.control.layers(baseLayers).addTo(map);
 
+    // Load saved markers from localStorage on startup
+    function loadMarkers() {
+      const saved = localStorage.getItem('abandonedMarkers');
+      if (!saved) return;
+      
+      const markers = JSON.parse(saved);
+      markers.forEach(({ name, lat, lng }) => {
+        const marker = L.marker([lat, lng]).addTo(map);
+        marker.bindPopup(`<strong>${name}</strong>`);
+      });
+    }
+
+    // Save all markers to localStorage
+    function saveMarkers() {
+      const markersData = [];
+      map.eachLayer(layer => {
+        if (layer instanceof L.Marker) {
+          const { lat, lng } = layer.getLatLng();
+          const popup = layer.getPopup();
+          const name = popup ? popup.getContent().replace(/<[^>]*>/g, '') : '';
+          if(name) {
+            markersData.push({ name, lat, lng });
+          }
+        }
+      });
+      localStorage.setItem('abandonedMarkers', JSON.stringify(markersData));
+    }
+
+    // Call loadMarkers when page loads
+    loadMarkers();
+
     // Add building marker function
     function addBuilding() {
       const name = document.getElementById('name').value.trim();
@@ -80,7 +111,10 @@
 
       map.setView([lat, lng], 10);
 
-      // Clear form inputs
+      // Save markers after adding
+      saveMarkers();
+
+      // Clear inputs
       document.getElementById('name').value = '';
       document.getElementById('lat').value = '';
       document.getElementById('lng').value = '';
