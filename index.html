@@ -51,16 +51,20 @@
       })
     };
 
-    // Initialize Map
+    // Initialize Map with bounds and zoom limits
     const map = L.map('map', {
       center: [20, 0],
       zoom: 2,
-      layers: [baseLayers["Carto Dark"]] // Default base layer
+      minZoom: 2,               // Can't zoom out beyond world view
+      maxBounds: [[-90, -180], [90, 180]],  // Can't pan outside world bounds
+      maxBoundsViscosity: 1.0,
+      layers: [baseLayers["Carto Dark"]]    // Default base layer
     });
 
-    // Layer control
+    // Add layer control to switch base layers
     L.control.layers(baseLayers).addTo(map);
 
+    // Add building marker function
     function addBuilding() {
       const name = document.getElementById('name').value.trim();
       const lat = parseFloat(document.getElementById('lat').value);
@@ -76,7 +80,7 @@
 
       map.setView([lat, lng], 10);
 
-      // Clear form
+      // Clear form inputs
       document.getElementById('name').value = '';
       document.getElementById('lat').value = '';
       document.getElementById('lng').value = '';
