@@ -4,28 +4,33 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Abandoned Buildings Map</title>
-
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-  <!-- Map -->
   <div id="map"></div>
 
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-
-  <!-- Load markers from locos.json -->
   <script>
     const baseLayers = {
+      "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+      }),
+      "Carto Light": L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+        attribution: '© CartoDB',
+        maxZoom: 19
+      }),
       "Carto Dark": L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
         attribution: '© CartoDB',
         maxZoom: 19
       }),
-      "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+      "Stamen Terrain": L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg', {
+        attribution: 'Map tiles by Stamen Design',
+        maxZoom: 18
+      }),
+      "Esri Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '© Esri, Maxar, Earthstar Geographics',
         maxZoom: 19
       })
     };
@@ -36,12 +41,11 @@
       minZoom: 2,
       maxBounds: [[-90, -180], [90, 180]],
       maxBoundsViscosity: 1.0,
-      layers: [baseLayers["Carto Dark"]]
+      layers: [baseLayers["Carto Light"]]
     });
 
     L.control.layers(baseLayers).addTo(map);
 
-    // Load markers from locos.json
     fetch('locos.json')
       .then(res => res.json())
       .then(data => {
@@ -51,7 +55,7 @@
         });
       })
       .catch(err => {
-        console.error("Failed to load marker data:", err);
+        console.error("Error loading markers:", err);
         alert("Could not load location data.");
       });
   </script>
