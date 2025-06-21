@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abandoned Buildings Map</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+  />
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    .form-container {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+
+    input {
+      margin-bottom: 5px;
+      width: 200px;
+    }
+
+    button {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="form-container">
+    <h3>Add Abandoned Building</h3>
+    <input type="text" id="name" placeholder="Name (e.g., Hospital)" /><br />
+    <input type="text" id="lat" placeholder="Latitude" /><br />
+    <input type="text" id="lng" placeholder="Longitude" /><br />
+    <button onclick="addBuilding()">Add</button>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([20, 0], 2); // World view
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    function addBuilding() {
+      const name = document.getElementById('name').value;
+      const lat = parseFloat(document.getElementById('lat').value);
+      const lng = parseFloat(document.getElementById('lng').value);
+
+      if (!name || isNaN(lat) || isNaN(lng)) {
+        alert("Please enter a name and valid coordinates.");
+        return;
+      }
+
+      const marker = L.marker([lat, lng]).addTo(map);
+      marker.bindPopup(`<b>${name}</b>`).openPopup();
+
+      // Optional: Zoom to the new marker
+      map.setView([lat, lng], 8);
+    }
+  </script>
+</body>
+</html>
