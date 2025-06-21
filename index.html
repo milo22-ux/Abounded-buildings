@@ -7,8 +7,6 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-
-  <!-- Custom Styles -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -29,12 +27,39 @@
   <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 
   <script>
-    const map = L.map('map').setView([20, 0], 2);
+    // Base Layers
+    const baseLayers = {
+      "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+        maxZoom: 19
+      }),
+      "Esri Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '© Esri, Maxar, Earthstar Geographics',
+        maxZoom: 19
+      }),
+      "Carto Light": L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+        attribution: '© CartoDB',
+        maxZoom: 19
+      }),
+      "Carto Dark": L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
+        attribution: '© CartoDB',
+        maxZoom: 19
+      }),
+      "Stamen Terrain": L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg', {
+        attribution: 'Map tiles by Stamen Design',
+        maxZoom: 18
+      })
+    };
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
+    // Initialize Map
+    const map = L.map('map', {
+      center: [20, 0],
+      zoom: 2,
+      layers: [baseLayers["Carto Dark"]] // Default base layer
+    });
+
+    // Layer control
+    L.control.layers(baseLayers).addTo(map);
 
     function addBuilding() {
       const name = document.getElementById('name').value.trim();
